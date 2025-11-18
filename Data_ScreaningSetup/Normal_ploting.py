@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-data = pd.read_csv('DATA\Data_MaskMeterial(polypropylene)_11.11.2025\sensor_data_2.csv', encoding='latin1')
+data = pd.read_csv('DATA\Data_MaskMeterial(polypropylene)_11.11.2025\sensor_data_6.csv', encoding='latin1')
 print(data.head())
 
 # Rest of your code remains the same

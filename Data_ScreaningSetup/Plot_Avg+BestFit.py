@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Load data
-data = pd.read_csv('DATA\Data_MaskMeterial(polypropylene)_11.11.2025\sensor_data_2.csv', encoding='latin1')
+data = pd.read_csv('DATA\Data_MaskMeterial(polypropylene)_11.11.2025\sensor_data_3ok.csv', encoding='latin1')
 print(data.head())
 
 # Extract and prepare data
@@ -46,12 +46,12 @@ ax1.grid(True)
 # Plot smoothed y2
 ax2 = ax1.twinx()
 #--------------------------------------------------------------------------------#
-ax2.plot(x, smoothed_y2, 'o-', label="Smoothed Paper Sensor", color='#FF7F50')
+#ax2.plot(x, smoothed_y2, 'o-', label="Smoothed Paper Sensor", color='#FF7F50')
 p2 = np.polyfit(x, smoothed_y2, 2)
 y2_fit = np.polyval(p2, x)
 ax2.plot(x, y2_fit, '-', label="Fit: Paper Sensor", color='darkorange', linewidth=2)
 
-ax2.set_ylabel('Sensor Value (Reversed + Averaged)', fontsize=20, fontweight='bold', color='#FF7F50')
+ax2.set_ylabel('Sensor Value', fontsize=20, fontweight='bold', color='#FF7F50')
 ax2.tick_params(axis='y', labelcolor='#FF7F50')
 
 # Title and show
