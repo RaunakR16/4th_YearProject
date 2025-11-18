@@ -1,12 +1,12 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-data = pd.read_csv('DATA\Data_MaskMeterial(polypropylene)_11.11.2025\sensor_data_6.csv', encoding='latin1')
+data = pd.read_csv('DATA\odbhut_data_day_2\sensor_data.csv', encoding='latin1')
 print(data.head())
 
 # Rest of your code remains the same
 y1 = data['Humidity (%)'].values
-y2 = data['Paper Sensor Value'].values
+y2 = data['Sensor Value'].values
 
 fig, ax1 = plt.subplots(figsize=(12, 6))
 
