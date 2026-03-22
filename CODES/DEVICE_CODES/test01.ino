@@ -9,54 +9,62 @@
 #define Humidifyer 23
 #define AIR_SDA_PIN 26
 #define AIR_SCL_PIN 25
-#define SCREEN_WIDTH 128
-#define SCREEN_HEIGHT 64
 #define DIS_SDA_PIN 21
 #define DIS_SCL_PIN 22
 
-// --------------------------------------------- System Config
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+
+// --------------------------------------------- I2C Buses
+TwoWire I2C_BMP = TwoWire(0);
+TwoWire I2C_OLED = TwoWire(1);
+
+// --------------------------------------------- System Objects
 BluetoothSerial SerialBT;
-Adafruit_BMP280 bmp;
-
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
-
+Adafruit_BMP280 bmp(&I2C_BMP);
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &I2C_OLED, -1);
 
 // ------------------------------------------------------------------------------------------------------ SETUP
 void setup() 
 {
   Serial.begin(115200);
 
-  // ------------------------------------------------------------- Bluetooth Name
-  SerialBT.begin("ESP32_CPAP"); 
+  // ------------------------------------ Bluetooth Name
+  SerialBT.begin("BreathEZ"); 
 
-  // ------------------------------------------------------------- Humidifyer  
+  // ------------------------------------ Humidifier
   pinMode(Humidifyer, OUTPUT);  
   digitalWrite(Humidifyer, LOW);
 
-  // ------------------------------------------------------------- Air Preasure Sensor
-  Wire.begin(AIR_SDA_PIN, AIR_SCL_PIN); 
-  if (!bmp.begin(0x76))  // use 0x77 if needed
+  // --------------------------------------------- Air Preasure BMP280
+  I2C_BMP.begin(AIR_SDA_PIN, AIR_SCL_PIN, 100000);
+
+  if (!bmp.begin(0x76))  
   {  
     Serial.println("BMP280 not found!");
     while (1);
   }
 
-  //---------------------------------------------------------------OLED Display
-  Wire.begin(DIS_SDA_PIN, DIS_SCL_PIN);
+  // -------------------------------------------------------- OLED Display
+  I2C_OLED.begin(DIS_SDA_PIN, DIS_SCL_PIN, 100000);
 
-  // OLED init
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) 
   {
     Serial.println("OLED not found");
     while (1);
-  }  
+  }
+
   display.clearDisplay();
+  display.setTextSize(2);
+  display.setTextColor(WHITE);
 
-  // ------------------------------------------------------------- Initialized
-  Serial.println("BMP280 initialized");
-  Serial.println("Bluetooth is Configuration done! Waiting for connection...");
+  display.setCursor(15, 25);
+  display.println("BreathEZ");
+  display.display();
 
-  delay(500);
+  Serial.println("System Initialized");
+  Serial.println("Bluetooth Ready");
+  delay(2000);
 }
 
 //------------------------------------------------------------------------------------------------------ LOOP
@@ -78,18 +86,22 @@ void loop()
     return;
   }
   // ------------------------------------------------------- Humidifyer Controll
-  if(sensorValue < 1000)
-  {
-    digitalWrite(Humidifyer, HIGH);
-    Serial.println("Humidifyer ON");
-    SerialBT.println("Humidifyer ON");
-  }
-  else 
-  {
-    digitalWrite(Humidifyer, LOW);
-    Serial.println("Humidifyer OFF");
-    SerialBT.println("Humidifyer OFF");
-  }
+const char* status;
+
+if(sensorValue < 1000)
+{
+  digitalWrite(Humidifyer, HIGH);
+  Serial.println("Humidifyer ON");
+  SerialBT.println("Humidifyer ON");
+  status = "ON";
+}
+else 
+{
+  digitalWrite(Humidifyer, LOW);
+  Serial.println("Humidifyer OFF");
+  SerialBT.println("Humidifyer OFF");
+  status = "OFF";
+}
   // --------------------------------------------------------- Serial Print
   Serial.print("PaperSensor: ");
   Serial.print(sensorValue);
@@ -131,19 +143,30 @@ void loop()
   SerialBT.println(", ");
 
 // --------------------------------------------------------- OLED Display
-  display.setTextSize(1);
-  display.setCursor(0, 0);
+  display.setTextSize(1.5);
+  display.setCursor(25, 0);
   display.println("CPAP Monitor");
 
-  display.setCursor(0, 20);
+  display.setTextSize(1);
+  display.setCursor(0, 18);
+  display.print("Resp: ");
+  display.print(sensorValue);
+  display.println("breaths/min");
+
+  display.setCursor(0, 30);
   display.print("Temp: ");
   display.print(temperature);
   display.println(" C");
 
-  display.setCursor(0, 35);
+  display.setCursor(0, 42);
   display.print("Pressure:");
   display.print(pressure);
   display.println(" hPa");
+
+  display.setCursor(0, 54);
+  display.print("Humidifyer Status:");
+  display.println(status);
+
 
   display.display();
   delay(100); 
