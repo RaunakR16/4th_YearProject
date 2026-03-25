@@ -42,10 +42,13 @@ void loop() {
     while (Serial.available()) Serial.read();  // flush buffer
 
     inputSpeed = constrain(inputSpeed, 0, 10);
-    targetSpeed = map(inputSpeed, 0, 10, 1230, 1600);
+    targetSpeed = map(inputSpeed, 0, 10, 1035, 1260);
 
     Serial.print("Ramping to speed: ");
-    Serial.println(inputSpeed);
+    Serial.print(inputSpeed);
+    Serial.print(" | ");
+    Serial.println(targetSpeed);
+
 
     rampToSpeed(targetSpeed);
 
