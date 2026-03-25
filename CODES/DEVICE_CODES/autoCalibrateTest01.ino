@@ -1,4 +1,4 @@
-#include <BluetoothSerial.h>
+\#include <BluetoothSerial.h>
 #include <Wire.h>
 #include <Adafruit_BMP280.h>
 #include <Adafruit_GFX.h>
@@ -49,11 +49,11 @@ void setup()
   // --------------------------------------------- Air Preasure BMP280
   I2C_BMP.begin(AIR_SDA_PIN, AIR_SCL_PIN, 100000);
 
-  // if (!bmp.begin(0x76))  
-  // {  
-  //   Serial.println("BMP280 not found!");
-  //   while (1);
-  // }
+  if (!bmp.begin(0x76))  
+  {  
+    Serial.println("BMP280 not found!");
+    while (1);
+  }
 
   // -------------------------------------------------------- OLED Display
   I2C_OLED.begin(DIS_SDA_PIN, DIS_SCL_PIN, 100000);
@@ -120,9 +120,9 @@ void loop()
 
   // ------------------------------------------------------------ BLDC ESC
 
-  int BLDC_Speed = map(sensorValue, 0, 4095, 0, 10);
-  int inputSpeed = constrain(BLDC_Speed, 0, 10);
-  targetSpeed = map(inputSpeed, 0, 10, 1230, 1540);
+  int BLDC_Speed = map(sensorValue, 200, 3500, 1035, 1260);
+  int targetSpeed = constrain(BLDC_Speed, 1035, 1260);
+  int SpeedLVL = map(targetSpeed, 1036, 1260, 0, 10);
   rampToSpeed(targetSpeed);
    
   // --------------------------------------------------------- Serial Print
@@ -146,7 +146,7 @@ void loop()
   Serial.print(", ");
 
   Serial.print("Pump speed: ");
-  Serial.println(inputSpeed);
+  Serial.println(SpeedLVL);
  
   //----------------------------------------------------------- Bluetooth Print
   SerialBT.print("PaperSensor: ");
@@ -169,7 +169,7 @@ void loop()
   SerialBT.print(", ");
 
   Serial.print("Pump speed: ");
-  Serial.println(inputSpeed);
+  Serial.println(SpeedLVL);
 
   // --------------------------------------------------------- OLED Display
   display.setTextSize(1.5);
@@ -202,7 +202,7 @@ void loop()
 
   display.setCursor(0, 18);
   display.print("Pump Speed: ");
-  display.print(inputSpeed);
+  display.print(SpeedLVL);
 
   display.setCursor(0, 30);
   display.print("Temp: ");
