@@ -1,4 +1,4 @@
-\#include <BluetoothSerial.h>
+#include <BluetoothSerial.h>
 #include <Wire.h>
 #include <Adafruit_BMP280.h>
 #include <Adafruit_GFX.h>
@@ -87,7 +87,7 @@ void loop()
 {
   display.clearDisplay();
 
-  // -------------------------------------------------------- Sensor Value Read
+  // -------------------------------------------------------- Air Sensor Value Read
   int sensorValue = analogRead(sensorPin);
   float temperature = bmp.readTemperature();
   float pressure = bmp.readPressure() / 100.0; // hPa
@@ -101,28 +101,28 @@ void loop()
     return;
   }
   // ------------------------------------------------------- Humidifyer Controll
-  const char* status;
+  const char* H_status;
 
-  if(sensorValue < 1000)
+  if(sensorValue < 1000) // ***************CALIBRATION*****************
   {
     digitalWrite(Humidifyer, HIGH);
-    Serial.println("Humidifyer ON");
-    SerialBT.println("Humidifyer ON");
-    status = "ON";
+    // Serial.println("Humidifyer ON");
+    // SerialBT.println("Humidifyer ON");
+    H_status = "ON";
   }
   else 
   {
     digitalWrite(Humidifyer, LOW);
-    Serial.println("Humidifyer OFF");
-    SerialBT.println("Humidifyer OFF");
-    status = "OFF";
+    // Serial.println("Humidifyer OFF");
+    // SerialBT.println("Humidifyer OFF");
+    H_status = "OFF";
   }
 
-  // ------------------------------------------------------------ BLDC ESC
+  // ------------------------------------------------------------ BLDC ESC ********************
 
-  int BLDC_Speed = map(sensorValue, 200, 3500, 1035, 1260);
-  int targetSpeed = constrain(BLDC_Speed, 1035, 1260);
-  int SpeedLVL = map(targetSpeed, 1036, 1260, 0, 10);
+  int BLDC_Speed = map(sensorValue, 200, 3100, 1074, 2000);
+  int targetSpeed = constrain(BLDC_Speed, 1074, 2000);
+  int SpeedLVL = map(targetSpeed, 1074, 2000, 0, 10);
   rampToSpeed(targetSpeed);
    
   // --------------------------------------------------------- Serial Print
@@ -140,14 +140,18 @@ void loop()
   Serial.print(" hPa");
   Serial.print(", ");
 
-  Serial.print("Altitude: ");
-  Serial.print(altitude);
-  Serial.print(" m");
-  Serial.print(", ");
+  // Serial.print("Altitude: ");
+  // Serial.print(altitude);
+  // Serial.print(" m");
+  // Serial.print(", ");
 
-  Serial.print("Pump speed: ");
-  Serial.println(SpeedLVL);
+  Serial.print("Pump speed lvl: ");
+  Serial.print(SpeedLVL);
+  Serial.print(", ");
  
+  Serial.print("Pump speed: ");
+  Serial.println(targetSpeed);
+
   //----------------------------------------------------------- Bluetooth Print
   SerialBT.print("PaperSensor: ");
   SerialBT.print(sensorValue);
@@ -163,13 +167,18 @@ void loop()
   SerialBT.print(" hPa");
   SerialBT.print(", ");
 
-  SerialBT.print("Altitude: ");
-  SerialBT.print(altitude);
-  SerialBT.print(" m");
-  SerialBT.print(", ");
+  // SerialBT.print("Altitude: ");
+  // SerialBT.print(altitude);
+  // SerialBT.print(" m");
+  // SerialBT.print(", ");
 
-  Serial.print("Pump speed: ");
-  Serial.println(SpeedLVL);
+  SerialBT.print("Pump speed lvl: ");
+  SerialBT.println(SpeedLVL);
+
+
+
+  SerialBT.print("Humidifyer Status: ");
+  SerialBT.println(H_status);
 
   // --------------------------------------------------------- OLED Display
   display.setTextSize(1.5);
@@ -216,7 +225,7 @@ void loop()
 
   display.setCursor(0, 54);
   display.print("Humidifyer Status:");
-  display.println(status);
+  display.println(H_status);
 
   display.display();
   delay(100); 
