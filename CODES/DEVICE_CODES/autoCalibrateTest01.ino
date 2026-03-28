@@ -21,7 +21,7 @@
 int currentSpeed = 1000;
 int targetSpeed = 1000;
 
-const int RAMP_STEP = 5;      // µs per step (lower = smoother)
+const int RAMP_STEP = 10;      // µs per step (lower = smoother)
 const int RAMP_DELAY = 20;    // ms between steps (lower = faster ramp)
 
 // --------------------------------------------- I2C Buses
@@ -122,7 +122,7 @@ void loop()
 
   int BLDC_Speed = map(sensorValue, 200, 3100, 1074, 2000);
   int targetSpeed = constrain(BLDC_Speed, 1074, 2000);
-  int SpeedLVL = map(targetSpeed, 1074, 2000, 0, 10);
+  int SpeedLVL = map(targetSpeed, 1000, 1900, 0, 10);
   rampToSpeed(targetSpeed);
    
   // --------------------------------------------------------- Serial Print
@@ -173,9 +173,12 @@ void loop()
   // SerialBT.print(", ");
 
   SerialBT.print("Pump speed lvl: ");
-  SerialBT.println(SpeedLVL);
+  SerialBT.print(SpeedLVL);
+  SerialBT.print(", ");
 
-
+  SerialBT.print("Pump speed: ");
+  SerialBT.print(targetSpeed);
+  SerialBT.print(", ");
 
   SerialBT.print("Humidifyer Status: ");
   SerialBT.println(H_status);
