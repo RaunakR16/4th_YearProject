@@ -1,3 +1,5 @@
+// ******** R16 ********
+
 #include <BluetoothSerial.h>
 #include <Wire.h>
 #include <Adafruit_BMP280.h>
@@ -119,7 +121,7 @@ void loop()
       display.clearDisplay();
       display.setTextSize(2);
       display.setTextColor(WHITE);
-      display.setCursor(20, 0);
+      display.setCursor(15, 0);
       display.println("BreathEZ");
       display.setTextSize(1);
       display.setTextColor(WHITE);
@@ -183,7 +185,7 @@ void loop()
   if (systemMode == MODE_AUTO)
   {
     // AUTO MODE 
-    int BLDC_Speed = map(sensorValue, 200, 3100, 1074, 2000); // ********************** CALIBRATION *************
+    int BLDC_Speed = map(sensorValue, 300, 3100, 1074, 2000); // ********************** CALIBRATION *************
     targetSpeed = constrain(BLDC_Speed, 1074, 2000);
     SpeedLVL = map(targetSpeed, 1000, 2000, 0, 10);
     rampToSpeed(targetSpeed);
@@ -257,6 +259,8 @@ void parseBTInput()
     SerialBT.println("  Mode: AUTO  ");
     SerialBT.println("------------------------------");
     Serial.println("----------Mode Switched to AUTO-------------");
+    targetSpeed = 1074;
+    rampToSpeed(targetSpeed);
     return;
   }
 
@@ -268,6 +272,8 @@ void parseBTInput()
     SerialBT.println("  Send speed level (0-10).");
     SerialBT.println("------------------------------");
     Serial.println("------------Mode Switched to MANUAL-----------");
+    targetSpeed = 1074;
+    rampToSpeed(targetSpeed);
     return;
   }
 
@@ -275,7 +281,9 @@ void parseBTInput()
   {
     systemMode = MODE_NONE;
     Serial.println("MODE: RESET");
-    SerialBT.println("Reseting...")
+    SerialBT.println("Reseting...");
+    targetSpeed = 1074;
+    rampToSpeed(targetSpeed);
     return;
   }
 
@@ -334,9 +342,10 @@ void sendModePrompt()
   SerialBT.println("   Welcome to BreathEZ v1.0   ");
   SerialBT.println("==============================");
   SerialBT.println("Please select operating mode:");
-  SerialBT.println("  A  →  Auto Mode");
-  SerialBT.println("  M  →  Manual Mode");
+  SerialBT.println("  A:  Auto Mode");
+  SerialBT.println("  M:  Manual Mode");
   SerialBT.println("        *Control Fan speed 0 to 10*");
+  SerialBT.println("  R:  Reset");
   SerialBT.println("==============================");
   SerialBT.println("Send 'A' or 'M' to begin.");
   SerialBT.println("==============================");
@@ -379,7 +388,7 @@ void updateOLED(int sensorValue, float temperature, float pressure, int speedLVL
   display.setTextSize(1);
   display.setCursor(0, 2);
   display.print("BreathEZ");
-  display.setCursor(80, 0);
+  display.setCursor(80, 2);
   display.print(modeLabel);
 
   // ── Divider line (manual pixel draw)
@@ -403,7 +412,7 @@ void updateOLED(int sensorValue, float temperature, float pressure, int speedLVL
   display.print(" hPa");
 
   display.setCursor(0, 54);
-  display.print("Humidifyer Status: ");
+  display.print("Humidifier Status: ");
   display.print(h_status);
 
   display.display();
